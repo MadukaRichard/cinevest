@@ -1,0 +1,239 @@
+/**
+ * ===========================================
+ * CineVest - Global Styles
+ * ===========================================
+ * 
+ * This file contains global CSS styles and
+ * Tailwind CSS imports for the application.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================
+   CSS Variables for Theme Support
+   =========================================== */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 4 76% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 228 30% 53%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 4 76% 58%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 30% 5%;
+    --foreground: 210 40% 98%;
+    --card: 224 25% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 25% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 4 76% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 228 30% 53%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 25% 18%;
+    --input: 217 25% 18%;
+    --ring: 4 76% 58%;
+  }
+}
+
+/* ===========================================
+   Base Styles
+   =========================================== */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+}
+
+/* ===========================================
+   Component Styles
+   =========================================== */
+
+@layer components {
+  /* Primary Button */
+  .btn-primary {
+    @apply px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-all duration-200 ease-in-out shadow-lg hover:shadow-xl;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply px-6 py-3 bg-secondary-600 hover:bg-secondary-700 text-white font-semibold rounded-lg transition-all duration-200 ease-in-out;
+  }
+
+  /* Outline Button */
+  .btn-outline {
+    @apply px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-semibold rounded-lg transition-all duration-200 ease-in-out;
+  }
+
+  /* Input Fields */
+  .input-field {
+    @apply w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all duration-200;
+  }
+
+  /* Card Component */
+  .card {
+    @apply bg-card border border-border rounded-xl p-6 shadow-lg;
+  }
+
+  /* Card Hover Effect */
+  .card-hover {
+    @apply card hover:border-primary-500/50 hover:shadow-primary-500/10 transition-all duration-300;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-green-500/20 text-green-400;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-500/20 text-yellow-400;
+  }
+
+  .badge-error {
+    @apply badge bg-red-500/20 text-red-400;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-500/20 text-blue-400;
+  }
+
+  /* Container */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section */
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  }
+
+  /* Navbar / Glass Effect */
+  .glass {
+    @apply bg-card border-b border-border shadow-sm;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* ===========================================
+   Utility Styles
+   =========================================== */
+
+@layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom scrollbar */
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.dark.700') theme('colors.dark.900');
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: theme('colors.dark.900');
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: theme('colors.dark.700');
+    border-radius: 3px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.dark.600');
+  }
+}
+
+/* ===========================================
+   Animation Keyframes
+   =========================================== */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px theme('colors.primary.500'),
+                0 0 10px theme('colors.primary.500'),
+                0 0 15px theme('colors.primary.500');
+  }
+  50% {
+    box-shadow: 0 0 10px theme('colors.primary.500'),
+                0 0 20px theme('colors.primary.500'),
+                0 0 30px theme('colors.primary.500');
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

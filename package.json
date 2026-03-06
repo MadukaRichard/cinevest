@@ -1,0 +1,26 @@
+{
+  "name": "cinevest",
+  "version": "1.0.0",
+  "description": "Movie investment platform - Invest in films, track ROI, connect with investors",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "install-all": "npm install && npm install --prefix client && npm install --prefix server",
+    "build": "npm run build --prefix client"
+  },
+  "keywords": [
+    "mern",
+    "movie",
+    "investment",
+    "crypto",
+    "film"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "emoji-mart": "^5.6.0",
+    "framer-motion": "^12.35.0"
+  }
+}
