@@ -43,15 +43,19 @@ import { apiLimiter } from './middleware/rateLimiter.js';
 const app = express();
 const httpServer = createServer(app);
 
+
+const allowedOrigins = [
+  process.env.CLIENT_URL, 
+  'http://localhost:5173', 
+  'https://cinevest.onrender.com' // Ensure this matches your ACTUAL frontend URL
+].filter(Boolean); // Removes null/undefined values
+
 // Initialize Socket.io for real-time chat
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      process.env.CLIENT_URL, 
-      'http://localhost:5173', 
-      'https://cinevest-client.onrender.com'
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
+    credentials: true, // Required for authenticated handshakes
   },
 });
 
@@ -66,16 +70,14 @@ connectDB();
 // ===========================================
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Set to false if you experience issues loading images/sockets
+}));
 
 // Enable CORS
 // Enable CORS
 app.use(cors({
-  origin: [
-    process.env.CLIENT_URL, 
-    'http://localhost:5173', 
-    'https://cinevest-client.onrender.com' // <-- Add your live Render frontend URL here
-  ],
+  origin: allowedOrigins,
   credentials: true,
 }));
 
