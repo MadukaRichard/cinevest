@@ -54,7 +54,7 @@ const DEFAULT_ROOMS = [
   { id: 'vip-lounge', name: 'VIP Lounge', description: 'Exclusive VIP investor chat', icon: 'vip', requiresSubscription: true },
   { id: 'announcements', name: 'Announcements', description: 'Official CineVest updates', icon: 'announcements', requiresSubscription: true },
   { id: 'film-talk', name: 'Film Talk', description: 'Discuss upcoming film projects', icon: 'film', requiresSubscription: true },
-  { id: 'crypto', name: 'Crypto & Payments', description: 'Crypto investment discussion', icon: 'crypto', requiresSubscription: true },
+  { id: 'crypto-payments', name: 'Crypto & Payments', description: 'Crypto investment discussion', icon: 'crypto', requiresSubscription: true },
 ];
 
 export const useChatStore = create((set, get) => ({
@@ -251,6 +251,10 @@ export const useChatStore = create((set, get) => ({
       // Sync the auth store so the whole app reflects the new role
       useAuthStore.getState().setUserRole(role);
 
+
+      const currentToken = socket.auth.token;
+      get().disconnect(); 
+      get().connect(currentToken);
       // Update the rooms' locked state based on the new role
       const isSubscribed = role === 'vip' || role === 'admin';
       set((state) => ({

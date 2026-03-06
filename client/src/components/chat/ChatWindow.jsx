@@ -15,8 +15,7 @@ import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 
 function ChatWindow({ roomId }) {
-  const { messages, isLoading, onlineUsers, typingUsers, isConnected } = useChatStore();
-  const { editMessage, deleteMessage } = useChatStore();
+  const { messages, isLoading, onlineUsers, typingUsers, isConnected, editMessage, deleteMessage } = useChatStore();
   const { user } = useAuthStore();
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
