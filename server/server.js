@@ -46,7 +46,11 @@ const httpServer = createServer(app);
 // Initialize Socket.io for real-time chat
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: [
+      process.env.CLIENT_URL, 
+      'http://localhost:5173', 
+      'https://cinevest-client.onrender.com'
+    ],
     methods: ['GET', 'POST'],
   },
 });
@@ -65,8 +69,13 @@ connectDB();
 app.use(helmet());
 
 // Enable CORS
+// Enable CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    process.env.CLIENT_URL, 
+    'http://localhost:5173', 
+    'https://cinevest-client.onrender.com' // <-- Add your live Render frontend URL here
+  ],
   credentials: true,
 }));
 
