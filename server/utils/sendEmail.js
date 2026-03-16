@@ -11,19 +11,28 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
-// Create a single shared transporter (not one per email call)
+// Single shared transporter — port 587 + STARTTLS (works on Render/Railway/fly.io)
+// Port 465 (SSL) is blocked by most cloud hosting providers on free tiers
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false, // false = STARTTLS (upgrades after connection)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
-  // Do NOT set ciphers: 'SSLv3' — it is deprecated and rejected by Gmail on production servers
   tls: {
     rejectUnauthorized: false,
   },
+});
+
+// Verify SMTP connection on server startup — check logs for result
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ SMTP connection failed:', error.message, '| Code:', error.code);
+  } else {
+    console.log('✅ SMTP server is ready to send emails');
+  }
 });
 
 /**
@@ -308,7 +317,7 @@ export const sendInvestmentStatusEmail = async (email, name, filmTitle, amount, 
   };
 
   const cfg = statusConfig[newStatus];
-  if (!cfg) return; // nothing to send for 'pending'
+  if (!cfg) return;
 
   const html = emailLayout(`
     <p style="margin: 0 0 16px 0; color: #ffffff; font-size: 18px; font-weight: 600;">
@@ -359,14 +368,6 @@ export const sendInvestmentStatusEmail = async (email, name, filmTitle, amount, 
     console.error(`❌ Error sending investment status email to ${email}:`, error.message);
   }
 };
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ SMTP connection failed:', error.message, '| Code:', error.code);
-  } else {
-    console.log('✅ SMTP server is ready to send emails');
-  }
-});
 
 export default {
   generateOTP,
