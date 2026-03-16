@@ -360,6 +360,14 @@ export const sendInvestmentStatusEmail = async (email, name, filmTitle, amount, 
   }
 };
 
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ SMTP connection failed:', error.message, '| Code:', error.code);
+  } else {
+    console.log('✅ SMTP server is ready to send emails');
+  }
+});
+
 export default {
   generateOTP,
   hashOTP,

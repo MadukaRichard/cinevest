@@ -80,6 +80,20 @@ router.post('/avatar', protect, avatarUpload.single('avatar'), (req, res) => {
     url: `/uploads/avatars/${req.file.filename}`,
   });
 });
+// TEMP DEBUG ROUTE — remove after fixing
+router.get('/test-email', async (req, res) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"CineVest" <${process.env.SMTP_USER}>`,
+      to: process.env.SMTP_USER, // sends to yourself
+      subject: 'CineVest Email Test',
+      text: 'If you see this, email is working.',
+    });
+    res.json({ success: true, info });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message, code: error.code });
+  }
+});
 
 // Protected routes
 router.get('/profile', protect, getUserProfile);
