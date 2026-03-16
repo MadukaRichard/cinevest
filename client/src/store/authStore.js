@@ -2,7 +2,7 @@
  * ===========================================
  * Auth Store
  * ===========================================
- * 
+ *
  * Zustand store for authentication state management.
  * Handles user login, registration, and session.
  */
@@ -44,9 +44,9 @@ export const useAuthStore = create(
           return { user, requiresVerification: false };
         } catch (error) {
           const data = error.response?.data;
-          const message = data?.message || 'Login failed';
+          const message = data?.message || error.message || 'Login failed';
           set({ isLoading: false, error: message });
-          
+
           // Check if verification is required
           if (data?.requiresVerification) {
             const verificationError = new Error(message);
@@ -54,7 +54,7 @@ export const useAuthStore = create(
             verificationError.email = data.email;
             throw verificationError;
           }
-          
+
           throw new Error(message);
         }
       },
@@ -68,12 +68,13 @@ export const useAuthStore = create(
             password,
           });
 
-          // Don't sign in - just return response for verification flow
+          // Don't sign in — just return response for verification flow
           set({ isLoading: false });
-          
+
           return response.data;
         } catch (error) {
-          const message = error.response?.data?.message || 'Registration failed';
+          // Fallback to error.message so network/timeout errors also surface
+          const message = error.response?.data?.message || error.message || 'Registration failed';
           set({ isLoading: false, error: message });
           throw new Error(message);
         }
@@ -108,6 +109,8 @@ export const useAuthStore = create(
           token: null,
           refreshToken: null,
           isAuthenticated: false,
+          isLoading: false,
+          error: null,
         });
         delete api.defaults.headers.common['Authorization'];
         // Clear admin session
@@ -123,7 +126,7 @@ export const useAuthStore = create(
           set({ user: { ...currentUser, ...response.data }, isLoading: false });
           return response.data;
         } catch (error) {
-          const message = error.response?.data?.message || 'Update failed';
+          const message = error.response?.data?.message || error.message || 'Update failed';
           set({ isLoading: false, error: message });
           throw new Error(message);
         }
@@ -140,7 +143,7 @@ export const useAuthStore = create(
           });
           return response.data;
         } catch (error) {
-          const message = error.response?.data?.message || 'Wallet connection failed';
+          const message = error.response?.data?.message || error.message || 'Wallet connection failed';
           set({ isLoading: false, error: message });
           throw new Error(message);
         }
@@ -157,7 +160,7 @@ export const useAuthStore = create(
           });
           return response.data;
         } catch (error) {
-          const message = error.response?.data?.message || 'Wallet disconnection failed';
+          const message = error.response?.data?.message || error.message || 'Wallet disconnection failed';
           set({ isLoading: false, error: message });
           throw new Error(message);
         }
@@ -224,7 +227,7 @@ export const useAuthStore = create(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) state.initAuth();
-      }
+      },
     }
   )
 );

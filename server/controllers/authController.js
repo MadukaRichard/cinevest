@@ -44,17 +44,21 @@ export const registerUser = asyncHandler(async (req, res) => {
       userExists.password = password;
       await userExists.save();
 
-      // Send verification email
-      await sendVerificationEmail(email, name, otp);
+      // Send verification email — non-blocking so a mail failure doesn't hang the response
+      try {
+        await sendVerificationEmail(email, name, otp);
+      } catch (emailError) {
+        console.error('⚠️ Email send failed, but user was updated:', emailError.message);
+      }
 
       res.status(200).json({
         message: 'Verification code sent to your email',
-        email: email,
+        email: userExists.email,
         requiresVerification: true,
       });
       return;
     }
-    
+
     res.status(400);
     throw new Error('User already exists');
   }
@@ -75,8 +79,12 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    // Send verification email
-    await sendVerificationEmail(email, name, otp);
+    // Send verification email — non-blocking so a mail failure doesn't hang the response
+    try {
+      await sendVerificationEmail(email, name, otp);
+    } catch (emailError) {
+      console.error('⚠️ Email send failed, but user was created:', emailError.message);
+    }
 
     res.status(201).json({
       message: 'Verification code sent to your email',
@@ -117,13 +125,17 @@ export const loginUser = asyncHandler(async (req, res) => {
     // Generate new OTP and send
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
-    
+
     user.verificationOTP = hashOTP(otp);
     user.verificationOTPExpires = otpExpires;
     user.otpAttempts = 0;
     await user.save();
 
-    await sendVerificationEmail(email, user.name, otp);
+    try {
+      await sendVerificationEmail(email, user.name, otp);
+    } catch (emailError) {
+      console.error('⚠️ Email send failed during login verification:', emailError.message);
+    }
 
     res.status(403).json({
       message: 'Please verify your email. A new verification code has been sent.',
@@ -262,8 +274,13 @@ export const resendOTP = asyncHandler(async (req, res) => {
   user.otpAttempts = 0;
   await user.save();
 
-  // Send verification email
-  await sendVerificationEmail(email, user.name, otp);
+  try {
+    await sendVerificationEmail(email, user.name, otp);
+  } catch (emailError) {
+    console.error('⚠️ Email send failed during OTP resend:', emailError.message);
+    res.status(500);
+    throw new Error('Failed to send verification email. Please try again.');
+  }
 
   res.json({
     message: 'Verification code sent to your email',
