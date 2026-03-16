@@ -10,6 +10,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -20,8 +22,10 @@ import { setIO } from './config/socket.js';
 import logger from './config/logger.js';
 import morgan from 'morgan';
 
-// Load environment variables
-dotenv.config({ path: '../.env' });
+// Load environment variables — resolve absolute path so it works locally AND on Render
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // Import database connection
 import connectDB from './config/db.js';
@@ -95,8 +99,7 @@ app.use(
 );
 
 // Serve uploaded files as static assets
-import path from 'path';
-app.use('/uploads', express.static(path.resolve('public/uploads')));
+app.use('/uploads', express.static(resolve('public/uploads')));
 
 // Global rate limiter — 100 req / 15 min per IP
 app.use('/api', apiLimiter);
