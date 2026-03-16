@@ -2,7 +2,7 @@
  * ===========================================
  * Email Utility
  * ===========================================
- * 
+ *
  * Handles sending emails for verification, notifications, etc.
  * Uses Nodemailer with SMTP configuration.
  * All emails use branded HTML templates.
@@ -11,24 +11,21 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
-// Create transporter with SMTP configuration
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    // Force the exact host string rather than relying on the env variable for now
-    host: 'smtp.gmail.com', 
-    port: 465, // Force 465
-    secure: true, // Force secure
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASSWORD,
-    },
-    // THIS IS THE MAGIC FIX for the ENETUNREACH IPv6 error:
-    tls: {
-        rejectUnauthorized: false,
-        ciphers: 'SSLv3'
-    }
-  });
-};
+// Create a single shared transporter (not one per email call)
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+  // Do NOT set ciphers: 'SSLv3' — it is deprecated and rejected by Gmail on production servers
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
 /**
  * Generate a 6-digit OTP code (cryptographically secure)
  * @returns {string} 6-digit OTP
@@ -88,8 +85,6 @@ const emailLayout = (content) => `
  * Send verification OTP email
  */
 export const sendVerificationEmail = async (email, name, otp) => {
-  const transporter = createTransporter();
-
   const html = emailLayout(`
     <p style="margin: 0 0 16px 0; color: #ffffff; font-size: 18px; font-weight: 600;">
       Hi ${name},
@@ -132,7 +127,6 @@ export const sendVerificationEmail = async (email, name, otp) => {
  * Send password reset email
  */
 export const sendPasswordResetEmail = async (email, name, resetToken) => {
-  const transporter = createTransporter();
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
   const html = emailLayout(`
@@ -183,8 +177,6 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
  * Send investment confirmation email
  */
 export const sendInvestmentEmail = async (email, name, filmTitle, amount) => {
-  const transporter = createTransporter();
-
   const html = emailLayout(`
     <p style="margin: 0 0 16px 0; color: #ffffff; font-size: 18px; font-weight: 600;">
       Hi ${name},
@@ -243,8 +235,6 @@ export const sendInvestmentEmail = async (email, name, filmTitle, amount) => {
  * Send welcome email after successful verification
  */
 export const sendWelcomeEmail = async (email, name) => {
-  const transporter = createTransporter();
-
   const html = emailLayout(`
     <p style="margin: 0 0 16px 0; color: #ffffff; font-size: 18px; font-weight: 600;">
       Welcome aboard, ${name}! 🎬
@@ -290,11 +280,9 @@ export const sendWelcomeEmail = async (email, name) => {
  * Send investment status update email (approved / rejected / refunded)
  */
 export const sendInvestmentStatusEmail = async (email, name, filmTitle, amount, newStatus) => {
-  const transporter = createTransporter();
-
   const statusConfig = {
     confirmed: {
-      label: 'Approved \u2713',
+      label: 'Approved ✓',
       color: '#22c55e',
       subject: `Investment Approved — ${filmTitle}`,
       message: 'Great news! Your investment has been reviewed and approved. Your ownership stake is now active.',
@@ -365,10 +353,10 @@ export const sendInvestmentStatusEmail = async (email, name, filmTitle, amount, 
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`\u2705 Investment status email (${newStatus}) sent to ${email}`);
+    console.log(`✅ Investment status email (${newStatus}) sent to ${email}`);
     return true;
   } catch (error) {
-    console.error(`\u274C Error sending investment status email to ${email}:`, error.message);
+    console.error(`❌ Error sending investment status email to ${email}:`, error.message);
   }
 };
 
