@@ -5,15 +5,16 @@
  * 
  * Routes for user authentication and profile management.
  * 
- * POST /api/auth/register           - Register new user
- * POST /api/auth/login              - Login user
- * POST /api/auth/verify             - Verify email with OTP
- * POST /api/auth/resend-otp         - Resend verification OTP
- * POST /api/auth/forgot-password    - Request password reset
+ * GET  /api/auth/health              - Health check (keep-alive ping)
+ * POST /api/auth/register            - Register new user
+ * POST /api/auth/login               - Login user
+ * POST /api/auth/verify              - Verify email with OTP
+ * POST /api/auth/resend-otp          - Resend verification OTP
+ * POST /api/auth/forgot-password     - Request password reset
  * POST /api/auth/reset-password/:token - Reset password with token
- * GET  /api/auth/profile            - Get user profile
- * PUT  /api/auth/profile            - Update user profile
- * PUT  /api/auth/wallet             - Connect crypto wallet
+ * GET  /api/auth/profile             - Get user profile
+ * PUT  /api/auth/profile             - Update user profile
+ * PUT  /api/auth/wallet              - Connect crypto wallet
  */
 
 import express from 'express';
@@ -52,6 +53,11 @@ import { avatarUpload } from '../middleware/avatarUpload.js';
 
 const router = express.Router();
 
+// Health check — used by uptime monitors to keep the server warm
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Public routes (rate-limited)
 router.post('/register', authLimiter, registerRules, validate, registerUser);
 router.post('/login', authLimiter, loginRules, validate, loginUser);
@@ -65,15 +71,13 @@ router.post('/refresh', apiLimiter, refreshAccessToken);
 router.post('/wallet-nonce', authLimiter, walletNonceRules, validate, getWalletNonce);
 router.post('/wallet-verify', authLimiter, walletVerifyRules, validate, walletVerify);
 
-
 // Avatar upload endpoint
 router.post('/avatar', protect, avatarUpload.single('avatar'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
-  // Return the relative path to the uploaded avatar
   res.json({
-    url: `/uploads/avatars/${req.file.filename}`
+    url: `/uploads/avatars/${req.file.filename}`,
   });
 });
 

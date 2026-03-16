@@ -44,12 +44,10 @@ export const registerUser = asyncHandler(async (req, res) => {
       userExists.password = password;
       await userExists.save();
 
-      // Send verification email — non-blocking so a mail failure doesn't hang the response
-      try {
-        await sendVerificationEmail(email, name, otp);
-      } catch (emailError) {
-        console.error('⚠️ Email send failed, but user was updated:', emailError.message);
-      }
+      // Fire-and-forget — respond immediately, email sends in background
+      sendVerificationEmail(email, name, otp).catch((err) => {
+        console.error('⚠️ Background email failed (re-register):', err.message);
+      });
 
       res.status(200).json({
         message: 'Verification code sent to your email',
@@ -79,12 +77,10 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    // Send verification email — non-blocking so a mail failure doesn't hang the response
-    try {
-      await sendVerificationEmail(email, name, otp);
-    } catch (emailError) {
-      console.error('⚠️ Email send failed, but user was created:', emailError.message);
-    }
+    // Fire-and-forget — respond immediately, email sends in background
+    sendVerificationEmail(email, name, otp).catch((err) => {
+      console.error('⚠️ Background email failed (new register):', err.message);
+    });
 
     res.status(201).json({
       message: 'Verification code sent to your email',
@@ -131,11 +127,10 @@ export const loginUser = asyncHandler(async (req, res) => {
     user.otpAttempts = 0;
     await user.save();
 
-    try {
-      await sendVerificationEmail(email, user.name, otp);
-    } catch (emailError) {
-      console.error('⚠️ Email send failed during login verification:', emailError.message);
-    }
+    // Fire-and-forget — respond immediately, email sends in background
+    sendVerificationEmail(email, user.name, otp).catch((err) => {
+      console.error('⚠️ Background email failed (login verify):', err.message);
+    });
 
     res.status(403).json({
       message: 'Please verify your email. A new verification code has been sent.',
@@ -274,13 +269,10 @@ export const resendOTP = asyncHandler(async (req, res) => {
   user.otpAttempts = 0;
   await user.save();
 
-  try {
-    await sendVerificationEmail(email, user.name, otp);
-  } catch (emailError) {
-    console.error('⚠️ Email send failed during OTP resend:', emailError.message);
-    res.status(500);
-    throw new Error('Failed to send verification email. Please try again.');
-  }
+  // Fire-and-forget — respond immediately, email sends in background
+  sendVerificationEmail(email, user.name, otp).catch((err) => {
+    console.error('⚠️ Background email failed (resend OTP):', err.message);
+  });
 
   res.json({
     message: 'Verification code sent to your email',

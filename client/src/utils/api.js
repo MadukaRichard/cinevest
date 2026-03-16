@@ -12,6 +12,7 @@ import axios from 'axios';
 // Create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 15000, // 15s timeout — prevents infinite loading on cold-start/SMTP hangs
   headers: {
     'Content-Type': 'application/json',
   },
