@@ -41,6 +41,7 @@ import { apiLimiter } from './middleware/rateLimiter.js';
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (if behind a reverse proxy like Nginx or Heroku)
 const httpServer = createServer(app);
 
 

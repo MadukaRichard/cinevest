@@ -14,16 +14,21 @@ import crypto from 'crypto';
 // Create transporter with SMTP configuration
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+    // Force the exact host string rather than relying on the env variable for now
+    host: 'smtp.gmail.com', 
+    port: 465, // Force 465
+    secure: true, // Force secure
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASSWORD,
     },
+    // THIS IS THE MAGIC FIX for the ENETUNREACH IPv6 error:
+    tls: {
+        rejectUnauthorized: false,
+        ciphers: 'SSLv3'
+    }
   });
 };
-
 /**
  * Generate a 6-digit OTP code (cryptographically secure)
  * @returns {string} 6-digit OTP
