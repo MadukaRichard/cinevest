@@ -7,11 +7,17 @@
  * sets up middleware, and mounts all API routes.
  */
 
-import express from 'express';
+// ⚠️ Load env vars FIRST before anything else
 import dotenv from 'dotenv';
-import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config();
+
+// Now safe to import everything else
+import express from 'express';
+import cors from 'cors';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -21,11 +27,6 @@ import ChatMessage from './models/ChatMessage.js';
 import { setIO } from './config/socket.js';
 import logger from './config/logger.js';
 import morgan from 'morgan';
-
-// Load environment variables — resolve absolute path so it works locally AND on Render
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-dotenv.config({ path: resolve(__dirname, '../.env') });
 
 // Import database connection
 import connectDB from './config/db.js';
@@ -69,6 +70,9 @@ setIO(io);
 
 // Connect to MongoDB
 connectDB();
+import('./utils/sendEmail.js').then(({ verifyEmailConnection }) => {
+  verifyEmailConnection();
+});
 
 // ===========================================
 // Middleware Setup
